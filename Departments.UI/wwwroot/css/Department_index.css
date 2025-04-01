@@ -1,0 +1,21 @@
+﻿
+.list-group-item {
+    cursor: pointer;
+}
+
+.subb-departments {
+    border-left: 2px solid #007bff; /* Blue line for sub-department indentation */
+    padding-left: 10px; /* Space between the line and text */
+    margin-top: 5px;
+    margin-bottom: 5px; /* Space above sub-department */
+}
+
+.card {
+    transition: transform 0.2s; /* Smooth transition */
+}
+
+    .card:hover {
+        transform: scale(1.02); /* Slightly enlarge on hover */
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
+    }
+

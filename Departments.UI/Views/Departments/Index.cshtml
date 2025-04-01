@@ -1,0 +1,68 @@
+﻿@model IEnumerable<Departments.UI.Models.DTO.DepartmentDto>
+<link rel="stylesheet" href="~/css/Department_index.css" asp-append-version="true" />
+<h2>
+    Departments    
+    <a asp-action="Create" asp-route-Did="" asp-route-Pname="" style="text-decoration: none;" title="Add">
+        <i class="bi bi-plus-circle text-success"></i> <!-- Add icon -->
+    </a>
+</h2>
+@if(Model.Count()!=0)
+{
+    <div id="departments-list">
+        @foreach (var department in Model)
+        {
+            <div class="card mb-3" data-department-id="@department.Id">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <a style="text-decoration: none;" href="#" class="department-name" data-id="@department.Id">@department.Name</a>
+                    </h5>
+                    <div class="menu-icon" style="cursor: pointer;">
+
+                        <a asp-action="Create" asp-route-Pid="@department.Id" asp-route-Pname="@department.Name" style="text-decoration: none;" title="Add">
+                            <i class="bi bi-plus-circle text-success"></i> <!-- Add icon -->
+                        </a>
+
+                        <a asp-action="Edit" asp-route-Did="@department.Id" style="text-decoration: none;" title="Update">
+                            <i class="bi bi-pencil-square text-primary"></i> <!-- Update icon -->
+                        </a>
+
+                        <a asp-controller="Reminder" asp-action="Index" asp-route-id="@department.Id" asp-route-pid="@department.ParentId" style="text-decoration: none;" title="Reminder">
+                            <i class="bi bi-bell text-warning"></i> 
+                        </a>
+                        <a asp-controller="Departments" asp-action="DepartmentHierarchy" asp-route-id="@department.Id" style="text-decoration: none;" title="Family">
+                           <i class="bi bi-building text-info"></i>
+                        </a>
+                        <a href="#"
+                           style="text-decoration: none;"
+                           title="Delete"
+                           data-bs-toggle="modal"
+                           data-bs-target="#deleteConfirmationModal"
+                           data-id="@department.Id"
+                           data-controller="Departments"
+                           data-action="Delete"
+                           data-question="Are you sure you want to delete this Department ?">
+                            <i class="bi bi-trash text-danger"></i> <!-- Delete icon -->
+                        </a>
+                    </div>
+                </div>
+                <div class="sub-departments" id="subs-@department.Id" style="display: none; padding: 10px;"></div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <h5>
+        There are no Departments to display.
+    </h5>
+}
+
+@section Scripts{
+    <script src="~/js/Department_Index.js"></script>
+}
+
+   
+
+   
+
+

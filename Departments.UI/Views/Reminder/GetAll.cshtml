@@ -1,0 +1,138 @@
+﻿@using System.Web
+<link rel="stylesheet" href="~/css/Reminder_GetAll.css" asp-append-version="true" />
+
+@model IEnumerable<Departments.UI.Models.ReminderModel>
+
+@{
+    ViewBag.Title = "Reminders List";
+}
+
+<!-- Include Font Awesome and Bootstrap CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+
+<div class="container mt-4 mb-5">
+    <h3 class="text-center mb-3">All Reminders</h3>
+
+    <div class="table-responsive">
+        <table class="table custom-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Body</th>
+                    <th>Date & Time</th>
+                    <th>Sender Email</th>
+                    <th>Recipients</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var reminder in Model)
+                {
+                    <tr>
+                        <td>@reminder.Title</td>
+                        <td class="body-preview">
+                            @{
+                                var charLimit = 100;
+                                var fullBodyText = reminder.Body;
+                                var shortBodyText = fullBodyText.Length > charLimit
+                                ? fullBodyText.Substring(0, charLimit) + "..."
+                                : fullBodyText;
+                            }
+                            <span class="short-text">@shortBodyText</span>
+                            @if (fullBodyText.Length > charLimit)
+                            {
+                                <span class="see-more" data-bs-toggle="modal" data-bs-target="#bodyModal" onclick="showFullBody('@Html.Raw(HttpUtility.JavaScriptStringEncode(fullBodyText))')">See More</span>
+                            }
+                        </td>
+                        <td>@reminder.DateTimeToSend.ToString("MM/dd/yyyy HH:mm")</td>
+                        <td>@reminder.SenderEmail</td>
+                        <td>
+                            @if (reminder.RecipientsEmail.Count > 3)
+                            {
+                                <div class="dropdown">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton-@reminder.Id" data-bs-toggle="dropdown" aria-expanded="false">
+                                        View Recipients
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-@reminder.Id">
+                                        @foreach (var recipient in reminder.RecipientsEmail)
+                                        {
+                                            <li class="dropdown-item">@recipient</li>
+                                        }
+                                    </ul>
+                                </div>
+                            }
+                            else
+                            {
+                                <ul>
+                                    @foreach (var recipient in reminder.RecipientsEmail)
+                                    {
+                                        <li>@recipient</li>
+                                    }
+                                </ul>
+                            }
+                        </td>
+                        <td>
+                            @if (reminder.DateTimeToSend > DateTime.Now)
+                            {
+                                <div class="text-warning">
+                                    Waiting
+                                    <a href="#"
+                                       style="text-decoration: none;"
+                                       title="Delete"
+                                       data-bs-toggle="modal"
+                                       data-bs-target="#deleteConfirmationModal"
+                                       data-id="@reminder.Id"
+                                       data-controller="Reminder"
+                                       data-action="Remove"
+                                       data-question="Are you sure you want to remove this Reminder ?">
+                                        <i class="fas fa-trash-alt ml-2 remove-icon" style="cursor: pointer;"></i>
+                                    </a>
+
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="text-success">Sent</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal for displaying the full body content -->
+<div class="modal fade" id="bodyModal" tabindex="-1" aria-labelledby="bodyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bodyModalLabel">Full Reminder Body</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="fullBodyText" style="white-space: pre-wrap; word-wrap: break-word;"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap and Popper JS -->
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.10.2/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+
+    <script>
+        // Function to populate the modal with the full body text
+        function showFullBody(fullText) {
+            document.getElementById('fullBodyText').innerText = fullText;
+        }
+    </script>
+}
+
+

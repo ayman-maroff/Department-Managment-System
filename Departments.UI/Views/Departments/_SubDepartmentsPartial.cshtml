@@ -1,0 +1,47 @@
+﻿@model IEnumerable<Departments.UI.Models.DTO.DepartmentDto>
+
+
+ @if (Model == null || !Model.Any())
+    {
+        <div class="list-group-item" style="color:orangered">No sub-departments available.</div>
+    }
+    else
+{
+    <div class="list-group" style="padding-left:20px">
+        @foreach (var subDepartment in Model)
+        {
+            <div class="card mb-3" data-department-id="@subDepartment.Id">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <a href="#" style="text-decoration: none; color:forestgreen;" class=" sub-department-name" data-id="@subDepartment.Id" >
+                        @subDepartment.Name
+                    </a>
+                    <div class="menu-icon" style="cursor: pointer;">
+                        <a asp-action="Create" asp-route-Pid="@subDepartment.Id" asp-route-Pname="@subDepartment.Name" style="text-decoration: none;" title="Add">
+                            <i class="bi bi-plus-circle text-success"></i> <!-- Add icon -->
+                        </a>
+                        <a asp-action="Edit" asp-route-Did="@subDepartment.Id" style="text-decoration: none;" title="Update">
+                            <i class="bi bi-pencil-square text-primary"></i> <!-- Update icon -->
+                        </a>
+                        <a asp-controller="Reminder" asp-action="Index" asp-route-id="@subDepartment.Id" asp-route-pid="@subDepartment.ParentId" style="text-decoration: none;" title="Reminder">
+                            <i class="bi bi-bell text-warning"></i>
+                        </a>
+                        <a asp-controller="Departments" asp-action="DepartmentHierarchy" asp-route-id="@subDepartment.Id" style="text-decoration: none;" title="Family">
+                            <i class="bi bi-building text-info"></i>
+                        </a>
+                        <a href="#"
+                           style="text-decoration: none;"
+                           title="Delete"
+                           data-bs-toggle="modal"
+                           data-bs-target="#deleteConfirmationModal"
+                           data-id="@subDepartment.Id">
+                            <i class="bi bi-trash text-danger"></i> <!-- Delete icon -->
+                        </a>
+                    </div>
+                </div>
+                <div class="subb-departments" id="subbs-@subDepartment.Id" style="display: none; padding-left: 20px;">
+                </div>
+            </div>
+        }
+    </div>
+}
+

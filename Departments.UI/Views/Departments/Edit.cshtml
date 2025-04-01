@@ -1,0 +1,122 @@
+﻿@using Departments.UI.Models.DTO
+@model DepartmentDto
+
+<h2 class="text-center mt-4 mb-5" style="color: #2c3e50;">Edit Department</h2>
+<form method="post" asp-route-Id="@ViewBag.Id" enctype="multipart/form-data" class="p-4 shadow-sm bg-light rounded" style="max-width: 600px; margin: 0 auto;">
+
+    <!-- Department Name -->
+    <div class="form-group mb-4">
+        <label asp-for="Name" class="form-label" style="font-weight: 600;">Department Name</label>
+        <input asp-for="Name" required class="form-control border-2 border-primary shadow-sm" id="DepartmentName" placeholder="Enter department name" />
+        <span asp-validation-for="Name" class="text-danger small"></span>
+    </div>
+
+    <!-- Email -->
+    <div class="form-group mb-4">
+        <label asp-for="Email" class="form-label" style="font-weight: 600;">Email</label>
+        <input asp-for="Email" required class="form-control border-2 border-primary shadow-sm" placeholder="Enter email" />
+        <span asp-validation-for="Email" class="text-danger small"></span>
+    </div>
+
+    <!-- Parent Department Dropdown -->
+    <div class="form-group mb-4">
+        <label class="form-label" style="font-weight: 600;">Parent Department</label>
+        @if (ViewBag.AllDepartmentExceptitChild == null)
+        {
+            <!-- If no available departments, display as top-level -->
+            <input class="form-control border-2 border-primary shadow-sm"
+                   value="No Department yet, Top Level Only"
+                   readonly />
+            <input asp-for="ParentId" type="hidden" value="null" /> <!-- Set hidden input for ParentId as null -->
+        }
+        else if(Model!=null)
+        {
+            <!-- If there are available departments, show a dropdown list -->
+            <select asp-for="ParentId" class="form-control border-2 border-primary shadow-sm">
+                <option value="null">Top-Level Department (No Parent)</option> <!-- Option for top-level -->
+                @foreach (var department in ViewBag.AllDepartmentExceptitChild)
+                {
+                    if ( Model.ParentId == department.Id)
+                    {
+                        <option value="@department.Id" selected="selected">@department.Name</option>
+                    }
+                    else
+                    {
+                        <option value="@department.Id">@department.Name</option>
+                    }
+                }
+            </select>
+        }
+    </div>
+
+    <!-- Upload Logo -->
+    <div class="form-group mb-4">
+        <label asp-for="FileUpload.File" class="form-label" style="font-weight: 600;">Upload Logo</label>
+        <input asp-for="FileUpload.File" type="file" class="form-control border-2 border-primary shadow-sm" id="fileInput" />
+    </div>
+
+    <!-- Hidden input for FileName -->
+    <div class="form-group mb-4">
+        <input asp-for="FileUpload.FileName" id="FileNameInput" class="form-control" style="display:none;" />
+    </div>
+    <input asp-for="DepartmentLogoUrl"  class="form-control" style="display:none;" />
+    <!-- Section to display the uploaded image or current logo -->
+    <div class="form-group text-center mb-4">
+        @if (string.IsNullOrEmpty(Model?.DepartmentLogoUrl))
+        {
+            <!-- Hide the image tag if there is no URL -->
+            <img  id="uploadedImage" style="display:none;" />
+        }
+        else
+        {
+            <!-- Display the existing logo if it exists -->
+            <img  id="uploadedImage" src="@Model.DepartmentLogoUrl" style="max-width: 200px; max-height: 200px; border-radius: 10px; border: 2px solid #3498db;" />
+  
+        }
+    </div>
+
+    <!-- Submit Button -->
+    <div class="text-center">
+        <button type="submit" class="btn btn-primary btn-lg px-4 py-2 shadow" style="background-color: #3498db; border-color: #2980b9;">Submit</button>
+    </div>
+
+    <!-- Error Handling -->
+  @if (ViewData.ModelState.ContainsKey("UpdateFailed") && ViewData.ModelState["UpdateFailed"].Errors.Count > 0)
+{
+    <div style="color:orangered" class="error">@ViewData.ModelState["UpdateFailed"].Errors[0].ErrorMessage</div>
+}
+@if (ViewData.ModelState.ContainsKey("fileUpload") && ViewData.ModelState["fileUpload"].Errors.Count > 0)
+{
+    <div style="color:orangered" class="error">@ViewData.ModelState["fileUpload"].Errors[0].ErrorMessage</div>
+}
+</form>
+@section Scripts {
+    <script type="text/javascript">
+        document.getElementById('fileInput').addEventListener('change', function (event) {
+            var fileInput = event.target;
+            var file = fileInput.files[0];
+            var image = document.getElementById('uploadedImage');
+
+            if (file) {
+                // Set file name to department name
+                var departmentName = document.getElementById('DepartmentName').value.trim();
+                var extension = file.name.split('.').pop(); // Get file extension
+                var newFileName = departmentName + '.' + extension;
+                document.getElementById('FileNameInput').value = newFileName;
+
+                // Display the uploaded image
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    image.src = e.target.result;
+                    image.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Hide the image if no file is selected
+                image.src = '';
+                image.style.display = 'none';
+            }
+        });
+    </script>
+}
+

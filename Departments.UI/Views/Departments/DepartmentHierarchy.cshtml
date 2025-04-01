@@ -1,0 +1,82 @@
+﻿@using Departments.UI.Models.DTO
+@using Microsoft.AspNetCore.Html
+@model DepartmentHierarchyViewDto
+<link rel="stylesheet" href="~/css/DepartmentHierarchy.css" asp-append-version="true" />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department Hierarchy</title>
+
+</head>
+<body>
+    <div class="container">
+        <!-- Parent Tree -->
+        <div id="parent-tree-container">
+            <h2>Parent Departments (Oldest to Newest)</h2>
+            <ul class="tree">
+                @if (Model.ParentDepartments.Any())
+                {
+                    @foreach (var parent in Model.ParentDepartments)
+                    {
+                        <li>
+                            <span class="department-name">@parent.Name</span>
+                        </li>
+                    }
+                }
+                else
+                {
+                    <li class="no-department">No parent departments available.</li>
+                }
+            </ul>
+        </div>
+
+        <!-- Sub-Department Tree -->
+        <div id="sub-tree-container">
+            <h2>Sub-Departments</h2>
+            <ul class="tree">
+                @if (Model.SubDepartments.Any())
+                {
+                    @foreach (var sub in Model.SubDepartments.Where(x => x.ParentId == Model.RootDepartmentId))  @* Start from the root department *@
+                    {
+                        @RenderSubDepartment(sub, Model.SubDepartments)
+                    }
+                }
+                else
+                {
+                    <li class="no-department">No sub-departments available.</li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    @* Recursive helper for sub-department rendering *@
+    @functions {
+        IHtmlContent RenderSubDepartment(DepartmentDto sub, List<DepartmentDto> allSubs)
+        {
+            var result = new HtmlContentBuilder();
+
+            // Render the current sub-department
+            result.AppendHtmlLine($"<li><span class=\"department-name\">{sub.Name}</span>");
+
+            // Get the children of the current sub-department
+            var children = allSubs.Where(x => x.ParentId == sub.Id).ToList();
+
+            // If the current sub-department has children, render them recursively
+            if (children.Any())
+            {
+                result.AppendHtmlLine("<ul>"); // Start a new <ul> for children
+                foreach (var child in children)
+                {
+                    result.AppendHtml(RenderSubDepartment(child, allSubs)); // Recursively render each child
+                }
+                result.AppendHtmlLine("</ul>"); // Close the <ul>
+            }
+
+            result.AppendHtmlLine("</li>"); // Close the current <li>
+            return result;
+        }
+    }
+</body>
+</html>

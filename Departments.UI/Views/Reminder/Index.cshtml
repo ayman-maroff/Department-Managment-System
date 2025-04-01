@@ -1,0 +1,160 @@
+﻿@using Departments.UI.Models.DTO
+<link rel="stylesheet" href="~/css/Reminder_index.css" asp-append-version="true" />
+@{
+    var subDepartments = ViewBag.SubDepartments as List<DepartmentDto>;
+    var topDepartments = ViewBag.TopDepartments as List<DepartmentDto>;
+    var parentDepartment = ViewBag.ParentDepartment;
+    var senderId = ViewBag.SenderId;
+}
+
+<h2 class="text-center my-4">Select Departments</h2>
+
+<!-- Buttons to toggle between Top Level and Sub Level -->
+<div class="text-center mb-4">
+    <button type="button" onclick="showTopDepartments()" class="btn btn-outline-primary mx-2 btn-lg">@(topDepartments == null ? "Send to my Top department" : "Send to Top Level")</button>
+
+    <button type="button" onclick="showSubDepartments()" class="btn btn-outline-primary mx-2 btn-lg">Send to Sub Level</button>
+
+</div>
+
+<hr />
+
+@if (parentDepartment == null)
+{
+    <!-- Top Departments List -->
+    <div id="topDepartments" style="display:none;">
+        @if (topDepartments.Count() != 0)
+        {
+            <h3 class="text-center my-4">Top-Level Departments</h3>
+            <form method="post" action="/Reminder/SendReminder">
+                <!-- Select All button for Top Departments -->
+                <button type="button" id="selectTopButton" onclick="toggleSelection('topDepartments', 'selectTopButton')" class="btn btn-primary btn-block mb-4">
+                    <i class="fas fa-check-circle"></i> Select All
+                </button>
+                <input type="hidden" name="senderId" value="@senderId" />
+                <div class="list-group">
+                    @foreach (var department in topDepartments)
+                    {
+                        <div class="list-group-item">
+                            <input type="checkbox" name="SelectedDepartmentEmails" value="@department.Email" class="topDepartmentCheckbox" onclick="updateButtonState('topDepartments', 'selectTopButton')" />
+                            <label class="ml-2">@department.Name</label>
+                        </div>
+                    }
+                </div>
+                <div class="form-group mb-4">
+                    <label class="form-label" style="font-weight: 600;">Reminder Description</label>
+                    <input name="description" required class="form-control border-2 border-primary shadow-sm" id="DepartmentName" placeholder="Enter Description" />
+                </div>
+                <div class="form-group mb-4">
+                    <label class="form-label" style="font-weight: 600;width: 200px;">Reminder Time</label>
+                    <input name="time" required type="datetime-local" class="form-control border-2 border-primary shadow-sm"
+                           id="DepartmentTime" placeholder="Enter Reminder Time"
+                           min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                </div>
+                @if (ViewData.ModelState["AddReminder"]?.Errors.Count > 0)
+                {
+                    <div style="color:orangered" class="error">@ViewData.ModelState["CreateFailed"].Errors[0].ErrorMessage</div>
+                }
+                <div class="text-center">
+                    <button type="submit" class="btn btn-success btn-block mt-4">
+                        Send
+                    </button>
+                </div>
+            </form>
+        }
+        else
+        {
+            <h3 class="text-center my-4">There are no Top-Level Departments</h3>
+        }
+    </div>
+}
+else
+{
+    <div id="topDepartments" style="display:none;">
+        <h3 class="text-center my-4">Top-Level Department</h3>
+        <form method="post" action="/Reminder/SendReminder">
+            <div class="list-group">
+
+                <input type="hidden" name="senderId" value="@senderId" />
+                <div class="list-group-item">
+                    <input type="checkbox" name="SelectedDepartmentEmails" value="@parentDepartment.Email" class="topDepartmentCheckbox" onclick="updateButtonState('topDepartments', 'selectTopButton')" />
+                    <label class="ml-2">@parentDepartment.Name</label>
+                </div>
+
+            </div>
+            <div class="form-group mb-4">
+                <label class="form-label" style="font-weight: 600;">Reminder Description</label>
+                <input name="description" required class="form-control border-2 border-primary shadow-sm" id="DepartmentName" placeholder="Enter Description" />
+
+            </div>
+            <div class="form-group mb-4">
+                <label class="form-label" style="font-weight: 600;width: 200px;">Reminder Time</label>
+                <input name="time" required type="datetime-local" class="form-control border-2 border-primary shadow-sm"
+                       id="DepartmentTime" placeholder="Enter Reminder Time"
+                       min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+            </div>
+            @if (ViewData.ModelState["AddReminder"]?.Errors.Count > 0)
+            {
+                <div style="color:orangered" class="error">@ViewData.ModelState["CreateFailed"].Errors[0].ErrorMessage</div>
+            }
+            <div class="text-center">
+                <button type="submit"  class="btn btn-success btn-block mt-4">
+                    Send
+                </button>
+            </div>
+        </form>
+    </div>
+}
+
+<!-- Sub Departments List -->
+<div id="subDepartments" style="display:none;">
+    @if (subDepartments.Count() != 0)
+    {
+        <h3 class="text-center my-4">Sub-Level Departments</h3>
+        <form method="post" action="/Reminder/SendReminder">
+            <!-- Select All button for Sub Departments -->
+            <button type="button" id="selectSubButton" onclick="toggleSelection('subDepartments', 'selectSubButton')" class="btn btn-primary btn-block mb-4">
+                <i class="fas fa-check-circle"></i> Select All
+            </button>
+            <input type="hidden" name="senderId" value="@senderId" />
+            <div class="list-group">
+                @foreach (var department in subDepartments)
+                {
+                    <div class="list-group-item">
+                        <input type="checkbox" name="SelectedDepartmentEmails" value="@department.Email" class="subDepartmentCheckbox" onclick="updateButtonState('subDepartments', 'selectSubButton')" />
+                        <label class="ml-2">@department.Name</label>
+                    </div>
+                }
+            </div>
+            <div class="form-group mb-4">
+                <label class="form-label" style="font-weight: 600;">Reminder Description</label>
+                <input name="description" required class="form-control border-2 border-primary shadow-sm" id="DepartmentName" placeholder="Enter Description" />
+
+            </div>
+            <div class="form-group mb-4">
+                <label class="form-label" style="font-weight: 600; width: 200px;">Reminder Time</label>
+                <input name="time" required type="datetime-local" class="form-control border-2 border-primary shadow-sm"
+                       id="DepartmentTime" placeholder="Enter Reminder Time"
+                       min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+            </div>
+            @if (ViewData.ModelState["AddReminder"]?.Errors.Count > 0)
+            {
+                <div style="color:orangered" class="error">@ViewData.ModelState["CreateFailed"].Errors[0].ErrorMessage</div>
+            }
+            <div class="text-center">
+                <button type="submit" class="btn btn-success btn-block mt-4">
+                    Send
+                </button>
+            </div>
+        </form>
+    }
+    else
+    {
+        <h3 class="text-center my-4">There are no Sub-Level Departments</h3>
+    }
+</div>
+
+@section Scripts {
+    <script src="~/js/Reminder_Index.js"></script>
+}
+
